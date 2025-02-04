@@ -31,8 +31,16 @@ async function run() {
      const menuCollection= client.db("nourishRDB").collection("menu");
      const reviewCollection = client.db("nourishRDB").collection("reviews");
 
-
+// for all menu data api
      app.get('/menu',async(req,res)=>{
+      const result=await menuCollection.find().toArray();
+      res.send(result)
+
+     });
+    //  for all reviews data api
+    app.get('/reviews',async(req,res)=>{
+      const result=await reviewCollection.find().toArray();
+      res.send(result)
 
      });
 
