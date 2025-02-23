@@ -28,8 +28,8 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-     const menuCollection= client.db("nourishRDB").collection("menu");
-     const reviewCollection = client.db("nourishRDB").collection("reviews");
+     const menuCollection= client.db("nourishRDBUser").collection("menu");
+     const reviewCollection = client.db("nourishRDBUser").collection("reviews");
 
 // for all menu data api
      app.get('/menu',async(req,res)=>{
