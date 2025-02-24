@@ -30,6 +30,7 @@ async function run() {
     await client.connect();
      const menuCollection= client.db("nourishRDBUser").collection("menu");
      const reviewCollection = client.db("nourishRDBUser").collection("reviews");
+     const cartCollection = client.db("nourishRDBUser").collection("carts");
 
 // for all menu data api
      app.get('/menu',async(req,res)=>{
@@ -43,6 +44,14 @@ async function run() {
       res.send(result)
 
      });
+
+    //  carts collection api
+    app.post('/carts',async(req,res)=>{
+      const cartItem=req.body;
+      const result=await cartCollection.insertOne(cartItem);
+      res.send(result);
+
+    })
 
 
 
