@@ -45,11 +45,21 @@ async function run() {
 
      });
 
-    //  carts collection api
+    //  carts collection api for post or add item
     app.post('/carts',async(req,res)=>{
       const cartItem=req.body;
       const result=await cartCollection.insertOne(cartItem);
       res.send(result);
+
+    });
+
+    // cart collection get data and show api 
+
+    app.get('/carts',async(req,res)=>{
+      const email=req.query.email;
+      const query={email:email}
+      const result=await cartCollection.find(query).toArray();
+      res.send(result)
 
     })
 
