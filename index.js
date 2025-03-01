@@ -31,6 +31,7 @@ async function run() {
      const menuCollection= client.db("nourishRDBUser").collection("menu");
      const reviewCollection = client.db("nourishRDBUser").collection("reviews");
      const cartCollection = client.db("nourishRDBUser").collection("carts");
+     const userCollection = client.db("nourishRDBUser").collection("users");
 
 // for all menu data api
      app.get('/menu',async(req,res)=>{
@@ -68,6 +69,15 @@ async function run() {
       const query={_id:new ObjectId(id)}
       const result=await cartCollection.deleteOne(query);
       res.send(query);
+    });
+
+
+    // user related api
+    app.post('/users',async(req,res)=>{
+      const user=req.body;
+      const result=await userCollection.insertOne(user);
+      res.send(result)
+
     })
 
 
