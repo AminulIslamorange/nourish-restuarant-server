@@ -1,6 +1,7 @@
 const express=require('express');
 const app=express();
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port=process.env.PORT || 5000;
@@ -32,6 +33,30 @@ async function run() {
      const reviewCollection = client.db("nourishRDBUser").collection("reviews");
      const cartCollection = client.db("nourishRDBUser").collection("carts");
      const userCollection = client.db("nourishRDBUser").collection("users");
+
+
+    //  jwt related api
+
+    app.post('/jwt',async(req,res)=>{
+      const user=req.body;
+      const token=jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{ expiresIn: '1h' });
+      res.send({token});
+    });
+
+    // midleware for verify token for jwt 
+
+    const veryfyToken=(req,res,next)=>{
+      console.log('inside veryfi token', req.headers);
+      if(!req.headers.authorization){
+        return res.status(401).send({message:'forbidden access'})
+      }
+      const token=req.headers.authorization.split(' ')[1];
+      if(!token){
+        
+      }
+      // next();
+
+    }
 
 // for all menu data api
      app.get('/menu',async(req,res)=>{
@@ -86,7 +111,8 @@ async function run() {
 
     });
 
-    app.get('/users',async(req,res)=>{
+    app.get('/users',veryfyToken,async(req,res)=>{
+      
       const result=await userCollection.find().toArray();
       res.send(result)
     });
