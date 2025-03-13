@@ -45,8 +45,8 @@ async function run() {
 
     // midleware for verify token for jwt 
 
-    const veryfyToken = (req, res, next) => {
-      console.log('inside veryfi token', req.headers.authorization);
+    const verifyToken = (req, res, next) => {
+      // console.log('inside veryfi token', req.headers.authorization);
       if (!req.headers.authorization) {
         return res.status(401).send({ message: 'unauthorized access' })
       }
@@ -63,12 +63,38 @@ async function run() {
 
     }
 
+
+
+
+    // verify admin after verify token
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.decoded.email;
+      const query={email:email};
+      const user=await userCollection.findOne(query);
+      const isAdmin=user?.role==='admin';
+      if(!isAdmin){
+        return res.status(403).send({message:'forbidden access'})
+      }
+      next();
+
+    }
+
     // for all menu data api
     app.get('/menu', async (req, res) => {
       const result = await menuCollection.find().toArray();
       res.send(result)
 
     });
+    // for menu post api
+
+    app.post('/menu',async(req,res)=>{
+      const item=req.body;
+      const result=await menuCollection.insertOne(item)
+      res.send(result)
+    });
+
+
+
     //  for all reviews data api
     app.get('/reviews', async (req, res) => {
       const result = await reviewCollection.find().toArray();
@@ -116,7 +142,7 @@ async function run() {
 
     });
 
-    app.get('/users', veryfyToken,verifyAdmin, async (req, res) => {
+    app.get('/users', verifyToken,verifyAdmin, async (req, res) => {
 
       const result = await userCollection.find().toArray();
       res.send(result)
@@ -124,7 +150,7 @@ async function run() {
 
     // user delete related api
 
-    app.delete('/users/:id',verifyAdmin,veryfyToken, async (req, res) => {
+    app.delete('/users/:id',verifyAdmin,verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.deleteOne(query);
@@ -134,7 +160,7 @@ async function run() {
 
     // make admin related api
 
-    app.patch('/users/admin/:id',verifyAdmin,veryfyToken, async (req, res) => {
+    app.patch('/users/admin/:id',verifyAdmin,verifyToken, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updateDoc = {
@@ -146,21 +172,10 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
-    // verify admin after verify token
-    const verifyAdmin = async (req, res, next) => {
-      const email = req.decoded.email;
-      const query={email:email};
-      const user=await userCollection.findOne(query);
-      const isAdmin=user?.role==='admin';
-      if(!isAdmin){
-        return res.status(403).send({message:'forbidden access'})
-      }
-      next();
-
-    }
+    
 
     // admin
-    app.get('/users/admin/:email', veryfyToken, async (req, res) => {
+    app.get('/users/admin/:email', verifyToken, async (req, res) => {
       const email = req.params.email;
       if (email !== req.decoded.email) {
         res.status(403).send({ message: 'forbiden access' })
