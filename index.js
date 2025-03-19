@@ -93,6 +93,41 @@ async function run() {
       res.send(result)
     });
 
+    // for specik menu item ........use for update item api
+
+    app.get('/menu/:id', async(req,res)=>{
+      const id=req.params.id;
+      const query={_id:new ObjectId(id)};
+      const result=await menuCollection.findOne(query);
+      res.send(result);
+
+    });
+    // for menu update api
+    app.patch('/menu/:id',async(req,res)=>{
+      const item=req.body;
+      const id=req.params.id;
+      const query={_id:new ObjectId(id)};
+       const updateDoc = {
+      $set: {
+       name:item.name,
+       category:item.category,
+       price:item.price,
+       recipe:item.recipe,
+       image:item.image,
+      },
+    };
+     const result = await menuCollection.updateOne(query, updateDoc);
+     res.send(result);
+    })
+
+    // for delete api
+    app.delete('/menu/:id',verifyToken,verifyAdmin, async(req,res)=>{
+      const id=req.params.id;
+      const query={ _id:new ObjectId(id)};
+      const result=await menuCollection.deleteOne(query);
+      res.send(result);
+    })
+
 
 
     //  for all reviews data api
