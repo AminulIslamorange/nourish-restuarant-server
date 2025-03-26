@@ -34,6 +34,7 @@ async function run() {
     const reviewCollection = client.db("nourishRDBUser").collection("reviews");
     const cartCollection = client.db("nourishRDBUser").collection("carts");
     const userCollection = client.db("nourishRDBUser").collection("users");
+    const paymentCollection = client.db("nourishRDBUser").collection("payments");
 
 
     //  jwt related api
@@ -243,6 +244,31 @@ async function run() {
 
       })
 
+    });
+
+    // payment save to database api
+
+    app.post('/payments',async(req,res)=>{
+      const payment=req.body;
+      const paymentResult=await paymentCollection.insertOne(payment);
+
+      // carefully delete item from the cart
+      console.log('payement info',payment)
+      const query={_id:{
+        $in:payment.cartIds.map(id => new ObjectId(id))
+      }};
+      const deleteResult=await cartCollection.deleteMany(query)
+      res.send({paymentResult,deleteResult})
+
+    });
+
+    app.get('/payemnt/:email',verifyToken,async(req,res)=>{
+      const query={email:req.params.email};
+      if(req.params.email !==req.decoded.email){
+        return res.status(403).send({message:'forbiden access'})
+      }
+      const result=await paymentCollection.find(query).toArray();
+      res.send(result)
     })
 
 
